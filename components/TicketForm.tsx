@@ -1,3 +1,5 @@
+'use client';
+
 import { ticketSchema } from '@/ValidationSchemas/ticket';
 import { Form, FormControl, FormField, FormItem, FormLabel } from './ui/form';
 import { z } from 'zod';
@@ -10,10 +12,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Button } from './ui/button';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Ticket } from '@prisma/client';
 
 type TicketFormData = z.infer<typeof ticketSchema>;
 
-const TicketForm = () => {
+interface Props {
+  ticket?: Ticket;
+}
+
+const TicketForm = ({ ticket }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,21 +35,37 @@ const TicketForm = () => {
       setIsSubmitting(true);
       setError(null);
 
-      // Send POST request to /api/tickets
-      const response = await fetch('/api/tickets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
+      if (ticket) {
+        // Send PATCH request to /api/tickets/:id
+        const response = await fetch(`/api/tickets/${ticket.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to submit ticket!');
+        if (!response.ok) {
+          throw new Error('Failed to update ticket!');
+        }
+      } else {
+        // Send POST request to /api/tickets
+        const response = await fetch('/api/tickets', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to submit ticket!');
+        }
       }
 
       setIsSubmitting(false);
       router.push('/tickets');
+      router.refresh();
     } catch (error) {
       // console.log(error);
       setError('Unknown error occurred!');
@@ -57,31 +80,34 @@ const TicketForm = () => {
           <FormField
             control={form.control}
             name='title'
+            defaultValue={ticket?.title}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Ticket Title</FormLabel>
                 <FormControl>
-                  <Input placeholder='Ticket Title...' />
+                  <Input placeholder='Ticket Title...' {...field} />
                 </FormControl>
               </FormItem>
             )}
           />
           <Controller
             name='description'
+            defaultValue={ticket?.description}
             control={form.control}
-            render={({ field }) => <SimpleMDE placeholder='Description' />}
+            render={({ field }) => <SimpleMDE placeholder='Description' {...field} />}
           />
           <div className='flex w-full space-x-4'>
             <FormField
               control={form.control}
               name='status'
+              defaultValue={ticket?.status}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Status...' />
+                        <SelectValue placeholder='Status...' defaultValue={ticket?.status} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -96,13 +122,14 @@ const TicketForm = () => {
             <FormField
               control={form.control}
               name='priority'
+              defaultValue={ticket?.priority}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Priority</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Priority...' />
+                        <SelectValue placeholder='Priority...' defaultValue={ticket?.priority} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -116,7 +143,7 @@ const TicketForm = () => {
             />
           </div>
           <Button type='submit' disabled={isSubmitting}>
-            Submit
+            {ticket ? 'Update Ticket' : 'Create Ticket '}
           </Button>
         </form>
       </Form>
