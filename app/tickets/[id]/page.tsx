@@ -1,15 +1,13 @@
 import prisma from '@/prisma/db';
-import dynamic from 'next/dynamic';
+import TicketDetail from './TicketDetail';
 
 interface Props {
   params: { id: string };
 }
 
-const TicketForm = dynamic(() => import('@/components/TicketForm'), { ssr: false });
-
-const EditTicket = async ({ params }: Props) => {
+const ViewTicket = async ({ params }: Props) => {
   try {
-    const ticket = await prisma?.ticket.findUnique({
+    const ticket = await prisma.ticket.findUnique({
       where: { id: parseInt(params.id) },
     });
 
@@ -17,11 +15,11 @@ const EditTicket = async ({ params }: Props) => {
       return <p className='text-destructive'>Ticket not found!</p>;
     }
 
-    return <TicketForm ticket={ticket} />;
+    return <TicketDetail ticket={ticket} />;
   } catch (error) {
     console.error('Error fetching ticket:', error);
     return <p className='text-destructive'>Error fetching ticket! Please try again later.</p>;
   }
 };
 
-export default EditTicket;
+export default ViewTicket;
