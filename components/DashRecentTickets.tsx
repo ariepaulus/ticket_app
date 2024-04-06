@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Prisma } from '@prisma/client';
 import TicketStatusBadge from './TicketStatusBadge';
 import Link from 'next/link';
