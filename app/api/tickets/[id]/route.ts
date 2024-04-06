@@ -9,6 +9,7 @@ interface Props {
 export async function PATCH(req: NextRequest, { params }: Props) {
   const body = await req.json();
   const validation = ticketPatchSchema.safeParse(body);
+  // console.log(validation.success);
 
   if (!validation.success) {
     return NextResponse.json(validation.error.format(), { status: 400 });

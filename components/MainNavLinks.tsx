@@ -1,4 +1,5 @@
 'use client';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -10,7 +11,7 @@ const MainNavLinks = ({ role }: { role?: string }) => {
   ];
 
   const currentPath = usePathname();
-  console.log(currentPath);
+  // console.log(currentPath);
 
   return (
     <div className='flex items-center gap-2'>

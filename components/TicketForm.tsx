@@ -68,7 +68,7 @@ const TicketForm = ({ ticket }: Props) => {
       router.refresh();
     } catch (error) {
       // console.log(error);
-      setError('Unknown error occurred!');
+      setError('Unauthorized! You are not authenticated. Please login to continue.');
       setIsSubmitting(false);
     }
   }
@@ -80,7 +80,7 @@ const TicketForm = ({ ticket }: Props) => {
           <FormField
             control={form.control}
             name='title'
-            defaultValue={ticket?.title}
+            defaultValue={ticket?.title || ''}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Ticket Title</FormLabel>
@@ -147,6 +147,7 @@ const TicketForm = ({ ticket }: Props) => {
           </Button>
         </form>
       </Form>
+      {error && <p className='text-red-500 text-sm mt-4'>{error}</p>}
     </div>
   );
 };
